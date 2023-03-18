@@ -6,9 +6,10 @@ import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognitio
 import "./App.css"
 
 const configuration = new Configuration({
-  apiKey: "//your api key",
+  apiKey: "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",
 });
 const openai = new OpenAIApi(configuration);
+const LOCAL_STORAGE_KEY = "kobeai.chat";
 
 function App() {
   const inputRef = useRef();
@@ -17,6 +18,16 @@ function App() {
   const { transcript, resetTranscript } = useSpeechRecognition();
   const [isListening, setIsListening] = useState(false);
 
+
+  useEffect(() => {
+    let storedHistory = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY))
+    if (storedHistory) setHistory(prevHistory => [...prevHistory, ...storedHistory])
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(history))
+  }, [history])
+
   const speakKobeResponse = (res) => {
     if ('speechSynthesis' in window) {
       let speakData = new SpeechSynthesisUtterance(res);
@@ -24,7 +35,6 @@ function App() {
     }
   }
    
-
 
   const askKobe = async (query) => {
     const response = openai.createChatCompletion({
