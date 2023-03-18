@@ -1,6 +1,8 @@
 
+import { v4 as uuidv4 } from 'uuid';
 import {useState,useEffect, useRef} from 'react'
 import 'regenerator-runtime/runtime'
+
 import { Configuration, OpenAIApi } from "openai"
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 import "./App.css"
@@ -15,9 +17,8 @@ function App() {
   const inputRef = useRef();
   const [history, setHistory] = useState([]);
   const [status, setStatus] = useState("");
-  const { transcript, resetTranscript } = useSpeechRecognition();
+  const { transcript } = useSpeechRecognition();
   const [isListening, setIsListening] = useState(false);
-  const [index, setIndex] = useState(0);
 
 
   useEffect(() => {
@@ -30,11 +31,10 @@ function App() {
   }, [history])
 
   const speakKobeResponse = (res) => {
-    if ('speechSynthesis' in window) {
-      let speakData = new SpeechSynthesisUtterance(res);
-      speakData.voice = speechSynthesis.getVoices()[3];
-      speechSynthesis.speak(speakData);
-    }
+    let speakData = new SpeechSynthesisUtterance(res);
+    speakData.voice = speechSynthesis.getVoices()[3];
+    speechSynthesis.speak(speakData);
+    
   }
    
 
@@ -52,25 +52,30 @@ function App() {
       })
       
     const res = (await response).data.choices[0].message.content
-    setHistory(prevHistory => [{id: index, query: query, response: res}, ...prevHistory]);
+    setHistory(prevHistory => [{id:`${uuidv4()}${Math.random()}${Date.now()}`, query: query, response: res}, ...prevHistory]);
     speakKobeResponse(res)
     setStatus("")
-    setIndex(prevIndex => prevIndex + 1)
-    console.log(history)
+    
   }
   
   const handleSubmit = (e) => {
     const query = inputRef.current.value
     if(query === '') return 
-    setStatus("Loading...")
-    handleSynthesisStop()
-    askKobe(query)
+    if(history.find(item => item.query === query)) {
+      setStatus("You have already asked that")
+      return
+    } else {
+
+      setStatus("Loading...")
+      handleSynthesisStop()
+      askKobe(query)
+    }
   }
 
   const handleRegenerate = (query) => {
     setStatus("Loading...")
     handleSynthesisStop()
-    history.shift()
+    setHistory(history.filter(item => item.query !== query))
     askKobe(query)
   }
 
@@ -84,6 +89,10 @@ function App() {
     setIsListening(false)
     inputRef.current.value = transcript
     if (transcript === "") return 
+    if(history.find(item => item.query === transcript)) {
+      setStatus("You have already said that")
+      return
+    }
     handleSynthesisStop()
     askKobe(transcript)
   }
@@ -111,16 +120,20 @@ function App() {
 
       </div>
       <h3>{status}</h3>
-      <div className='response' >
+      <div className='response' id = "response" >
         {history.map(item => {
           return (
             <div id = "item" key = {item.id}>
               <> <h3>User:</h3>  {item.query}</>
               <> <h3>Kobe:</h3> {item.response}</>
               <div style = {{textAlign: 'right'}}>
-
+              {history[0] === item ? <div>
               <button id = "btn" onClick = {handleSynthesisStop} style = {{marginTop: "20px"}}>🛑 </button> 
+
               <button  id = "btn" onClick = {() => handleRegenerate(item.query)} style = {{marginTop: "20px"}}>♻️ </button>
+              </div>
+               : null}
+              
               </div>
             </div>
           )
