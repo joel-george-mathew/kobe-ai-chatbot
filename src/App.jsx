@@ -86,6 +86,10 @@ function App() {
     speechSynthesis.cancel()
   }
 
+  const handleClearConversation =() => {
+    setHistory([])
+  }
+
 
   return (
     <div className='app'>
@@ -95,6 +99,7 @@ function App() {
       <input type="text" ref = {inputRef} placeholder = "Type something...." />
       <button id = "btn" onClick = {handleSubmit} >💬</button>
       {isListening ? <button id = "btn" onClick = {handleStop} >🛑</button> : <button id = "btn" onClick = {handleSpeak} >🎙️</button>}
+      <button id = "btn" onClick = {handleClearConversation} >🗑️</button>
       
 
       </div>
