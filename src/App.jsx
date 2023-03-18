@@ -8,10 +8,10 @@ import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognitio
 import "./App.css"
 
 const configuration = new Configuration({
-  apiKey: "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",
+  apiKey: "//key",
 });
 const openai = new OpenAIApi(configuration);
-const LOCAL_STORAGE_KEY = "kobeai.chat";
+const LOCAL_STORAGE_KEY = "//key";
 
 function App() {
   const inputRef = useRef();
