@@ -56,6 +56,7 @@ function App() {
     speakKobeResponse(res)
     setStatus("")
     setIndex(prevIndex => prevIndex + 1)
+    console.log(history)
   }
   
   const handleSubmit = (e) => {
@@ -82,6 +83,7 @@ function App() {
     SpeechRecognition.stopListening()
     setIsListening(false)
     inputRef.current.value = transcript
+    if (transcript === "") return 
     handleSynthesisStop()
     askKobe(transcript)
   }
