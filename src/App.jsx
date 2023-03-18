@@ -17,6 +17,7 @@ function App() {
   const [status, setStatus] = useState("");
   const { transcript, resetTranscript } = useSpeechRecognition();
   const [isListening, setIsListening] = useState(false);
+  const [index, setIndex] = useState(0);
 
 
   useEffect(() => {
@@ -31,6 +32,7 @@ function App() {
   const speakKobeResponse = (res) => {
     if ('speechSynthesis' in window) {
       let speakData = new SpeechSynthesisUtterance(res);
+      speakData.voice = speechSynthesis.getVoices()[3];
       speechSynthesis.speak(speakData);
     }
   }
@@ -50,9 +52,10 @@ function App() {
       })
       
     const res = (await response).data.choices[0].message.content
-    setHistory(prevHistory => [{id: Date.now(), query: query, response: res}, ...prevHistory]);
+    setHistory(prevHistory => [{id: index, query: query, response: res}, ...prevHistory]);
     speakKobeResponse(res)
     setStatus("")
+    setIndex(prevIndex => prevIndex + 1)
   }
   
   const handleSubmit = (e) => {
@@ -66,6 +69,7 @@ function App() {
   const handleRegenerate = (query) => {
     setStatus("Loading...")
     handleSynthesisStop()
+    history.shift()
     askKobe(query)
   }
 
@@ -89,6 +93,8 @@ function App() {
   const handleClearConversation =() => {
     setHistory([])
   }
+ 
+
 
 
   return (
@@ -100,10 +106,9 @@ function App() {
       <button id = "btn" onClick = {handleSubmit} >💬</button>
       {isListening ? <button id = "btn" onClick = {handleStop} >🛑</button> : <button id = "btn" onClick = {handleSpeak} >🎙️</button>}
       <button id = "btn" onClick = {handleClearConversation} >🗑️</button>
-      
 
       </div>
-      <div>{status}</div>
+      <h3>{status}</h3>
       <div className='response' >
         {history.map(item => {
           return (
