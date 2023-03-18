@@ -63,6 +63,12 @@ function App() {
     askKobe(query)
   }
 
+  const handleRegenerate = (query) => {
+    setStatus("Loading...")
+    handleSynthesisStop()
+    askKobe(query)
+  }
+
   const handleSpeak = (e) => {
     SpeechRecognition.startListening()
     setIsListening(true)
@@ -102,7 +108,7 @@ function App() {
               <div style = {{textAlign: 'right'}}>
 
               <button id = "btn" onClick = {handleSynthesisStop} style = {{marginTop: "20px"}}>🛑 </button> 
-              <button  id = "btn" onClick = {handleSubmit} style = {{marginTop: "20px"}}>♻️ </button>
+              <button  id = "btn" onClick = {() => handleRegenerate(item.query)} style = {{marginTop: "20px"}}>♻️ </button>
               </div>
             </div>
           )
